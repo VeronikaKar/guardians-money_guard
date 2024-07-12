@@ -1,6 +1,15 @@
+import { useEffect } from "react";
 import "./App.css";
+import { useDispatch } from "react-redux";
+import { monoThunk } from "./redux/currency/operations";
+import { categoriesThunk } from "./redux/categories/operations";
 
 function App() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(monoThunk());
+    // dispatch(categoriesThunk());
+  }, [dispatch]);
   return (
     <>
       <h1>Hello</h1>
