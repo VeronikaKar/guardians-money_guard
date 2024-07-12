@@ -1,0 +1,14 @@
+:root {
+  --color-text: #fbfbfb;
+  --color-cancel: #623f8b;
+  --color-extend: #ff868d;
+  --color-income: #ffb627;
+  --background-btn: linear-gradient(
+    167deg,
+    #ffc727 0%,
+    #9e40ba 61.46%,
+    #7000ff 90.54%
+  );
+  --background-cancel: #fcfcfc;
+  --blur-background-modal: rgba(255, 255, 255, 0.1);
+}
