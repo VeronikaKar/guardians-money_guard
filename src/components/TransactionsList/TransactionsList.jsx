@@ -1,43 +1,22 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
-// import { useSelector } from "react-redux";
 import TransactionsItem from "../TransactionsItem/TransactionsItem";
-// import { selectTransactions } from "../../redux/transactions/selectors";
+import useRespons from "../../hooks/useRespons";
 import s from "./TransactionsList.module.css";
 
-const toSorted = (transactions) => {
-  return [...transactions].sort((a, b) => {
-    return new Date(b.transactionDate) - new Date(a.transactionDate);
-  });
-};
-
-// const TransactionsList = () => {
-//   const transactions = useSelector(selectTransactions);
-
-//   if (!transactions.length) {
-//     return (
-//       <div className={s.filler}>
-//         <p>You don’t have any transactions now...</p>
-//       </div>
-//     );
-//   }
-
 const TransactionsList = ({ transactions }) => {
-  const [isMobile] = useState(false);
+  const { mobileUser } = useRespons();
 
   if (!transactions.length) {
     return (
-      <div className={s.filler}>
+      <div className={s.emptyBox}>
         <p>You don’t have any transactions now...</p>
       </div>
     );
   }
 
-  const sortedTransactions = toSorted(transactions);
-
   return (
     <>
-      {!isMobile ? (
+      {!mobileUser ? (
         <div className={s.wrapper}>
           <table>
             <thead>
@@ -51,35 +30,50 @@ const TransactionsList = ({ transactions }) => {
               </tr>
             </thead>
             <tbody>
-              {sortedTransactions.map((transaction) => (
-                <TransactionsItem
-                  key={transaction.id}
-                  transaction={transaction}
-                />
-              ))}
+              {transactions
+                .toSorted(
+                  (a, b) =>
+                    new Date(b.transactionDate) - new Date(a.transactionDate)
+                )
+                .map((transaction) => (
+                  <TransactionsItem
+                    key={transaction.id}
+                    transaction={transaction}
+                  />
+                ))}
             </tbody>
           </table>
         </div>
       ) : (
-        <ul className={s.mobileList}>
-          {sortedTransactions.map((transaction) => (
-            <TransactionsItem key={transaction.id} transaction={transaction} />
-          ))}
+        <ul className={s.listTrans}>
+          {transactions
+            .toSorted(
+              (a, b) =>
+                new Date(b.transactionDate) - new Date(a.transactionDate)
+            )
+            .map((transaction) => (
+              <TransactionsItem
+                key={transaction.id}
+                transaction={transaction}
+              />
+            ))}
         </ul>
       )}
     </>
   );
 };
+
 TransactionsList.propTypes = {
   transactions: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       transactionDate: PropTypes.string.isRequired,
-      type: PropTypes.oneOf(["INCOME", "EXPENSE"]).isRequired,
+      type: PropTypes.string.isRequired,
       categoryId: PropTypes.string.isRequired,
-      comment: PropTypes.string,
+      comment: PropTypes.string.isRequired,
       amount: PropTypes.number.isRequired,
     })
   ).isRequired,
 };
+
 export default TransactionsList;

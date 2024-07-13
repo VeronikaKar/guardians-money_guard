@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Icon } from "../../images/Icon/Icon";
-import PropTypes from "prop-types";
+import clsx from "clsx";
+import { GoPencil } from "react-icons/go";
+import useRespons from "../../hooks/useRespons.js";
+import { transaction } from "../../helpers/transactionsItemMockData.js";
 import EditTransactionForm from "../EditTransactionForm/EditTransactionForm";
+import s from "./TransactionsItem.module.css";
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -11,68 +14,75 @@ const formatDate = (dateString) => {
   return `${day}.${month}.${year}`;
 };
 
-const TransactionsItem = ({ transaction }) => {
+const TransactionsItem = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [categories] = useState([]);
-
-  const [categoryName, setCategoryName] = useState("Unknown");
-
-
-  const findAndSetCategoryName = (categoryId) => {
-    const foundCategory = categories.find((item) => item.id === categoryId);
-    if (foundCategory) {
-      setCategoryName(foundCategory.name);
-    } else {
-      setCategoryName("Unknown");
-    }
-  };
-  findAndSetCategoryName(transaction);
+  const { mobileUser } = useRespons();
 
   const openModal = () => {
     setIsModalOpen(true);
   };
 
-    const closeModal = () => {
-      setIsModalOpen(false);
-    };
+  const closeModal = () => setIsModalOpen(false);
 
-  const handleDelete = () => {
-    console.log("Deleting transaction:", transaction.id);
+  const displayType = transaction.type === "INCOME" ? "+" : "-";
+  const displayAmount = Math.abs(transaction.amount);
+
+  const category = transaction.category;
+  const categoryName = category ? category.name : "Unknown";
+
+  const transactionRow = (
+    <tr key={transaction.id}>
+      <td>{formatDate(transaction.transactionDate)}</td>
+      <td className={s.type}>{displayType}</td>
+      <td>{categoryName}</td>
+      <td>{transaction.comment}</td>
+      <td
+        className={clsx(s.sum, {
+          [s.income]: transaction.type === "INCOME",
+          [s.expense]: transaction.type === "EXPENSE",
+        })}
+      >
+        {displayAmount}
+      </td>
+      <td>
+        <div className={s.btnBox}>
+          <button
+            className={s.edit}
+            type="button"
+            onClick={openModal}
+            aria-label="edit button"
+          >
+            <GoPencil height={14} width={14} />
+          </button>
+          <button
+            className={clsx(s.button, s.animation)}
+            type="button"
+            onClick={() => handleDelete(transaction.id)}
+            aria-label="delete button"
+          >
+            Delete
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+
+  const handleDelete = (id) => {
+    console.log(`Deleting transaction with id ${id}`);
   };
 
   return (
     <>
-      <div className="transaction-item">
-        <p>{formatDate(transaction.transactionDate)}</p>
-        <p>{transaction.type === "INCOME" ? "+" : "-"}</p>
-        <p>{categoryName}</p>
-        <p>{transaction.comment}</p>
-        <p>{Math.abs(transaction.amount)}</p>
-        <div className="actions">
-          <button onClick={openModal}>
-            <Icon id="icon-pen" height={14} width={14} />
-          </button>
-          <button onClick={handleDelete}>Delete</button>
-        </div>
-      </div>
-       {isModalOpen && (
+      {!mobileUser ? transactionRow : null}
+      {isModalOpen && (
         <EditTransactionForm
-          transaction={transaction}
+          categoryName={categoryName}
           closeModal={closeModal}
-          categories={categories}
+          transaction={transaction}
         />
       )}
     </>
   );
 };
-TransactionsItem.propTypes = {
-  transaction: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    transactionDate: PropTypes.string.isRequired,
-    type: PropTypes.string.isRequired,
-    categoryId: PropTypes.string.isRequired,
-    comment: PropTypes.string,
-    amount: PropTypes.number.isRequired,
-  }).isRequired,
-};
+
 export default TransactionsItem;

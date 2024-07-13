@@ -1,12 +1,11 @@
 import Currency from "../Currency/Currency";
-
-import s from "./CurrencyTab.module.css";
+import { motion } from "framer-motion";
 
 const CurrencyTab = () => {
   return (
-    <div className={s.wrapper}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <Currency />
-    </div>
+    </motion.div>
   );
 };
 
